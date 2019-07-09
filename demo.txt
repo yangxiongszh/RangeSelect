@@ -1,0 +1,103 @@
+﻿# 使用示例
+const marginLeft = 30;
+const marginRight = 30;
+const roundSize = 30; // 圆的大小
+const { width } = Dimensions.get('window'); // 设备宽度
+const priceMax = 10000; // 最大价格
+
+this.state = {
+    dialogVisible: false,
+    start: marginLeft, // 起始坐标
+    end: width - roundSize - marginRight, // 结束坐标
+    startPriceTmp: 0, // 起始价格
+    endPriceTmp: '不限', // 结束价格
+}
+
+  // 重置按钮
+  onResetPress = () => {
+    this.setState({
+      start: marginLeft,
+      end: width - roundSize - marginRight,
+      startPriceTmp: 0,
+      endPriceTmp: '不限',
+    });
+    this.startPrice = 0;
+    this.endPrice = '不限';
+  };
+
+  // 确认按钮
+  onConfirmPress = () => {
+    const { personInfos } = this.state;
+    let range = '不限';
+    if (this.state.startPriceTmp !== 0 && this.state.endPriceTmp === range) {
+      range = `${this.state.startPriceTmp}-${this.state.endPriceTmp}`;
+    } else if (this.state.endPriceTmp !== range) {
+      range = `${this.state.startPriceTmp}-${this.state.endPriceTmp}元`;
+    }
+    personInfos[2].content = range;
+    this.setState({ personInfos });
+    this.onDialogClose();
+    this.startPrice = this.state.startPriceTmp;
+    this.endPrice = this.state.endPriceTmp;
+  };
+
+
+  // 价格范围选择
+  renderRangeSelectDialog = () => {
+    const array = ['不限', '1500元以下', '1500元-2000元', '2000-2500元', '2500-3000元'];
+    let range = '不限';
+    if (this.state.startPriceTmp !== 0 && this.state.endPriceTmp === range) {
+      range = `${this.state.startPriceTmp}-${this.state.endPriceTmp}`;
+    } else if (this.state.endPriceTmp !== range) {
+      range = `${this.state.startPriceTmp}-${this.state.endPriceTmp}元`;
+    }
+
+    return (
+      <Modal onClose={this.onDialogClose} visible={this.state.dialogVisible}>
+        <View style={{ paddingTop: dp2px(88), paddingBottom: dp2px(25), alignItems: 'center' }}>
+          {array.map(item => {
+            return (
+              <Text style={styles.itemRange} key={item}>
+                {item}
+              </Text>
+            );
+          })}
+          {this.renderLine()}
+          <Text style={styles.range}>{range}</Text>
+          <RangeSelect
+            start={this.state.start}
+            end={this.state.end}
+            startPrice={this.state.startPriceTmp}
+            endPrice={this.state.endPriceTmp}
+            range={priceMax}
+            onPriceChange={(start, end, startPrice, endPrice) => {
+              this.setState({ start, end, startPriceTmp: startPrice, endPriceTmp: endPrice });
+            }}
+          />
+          <View style={{ width: '100%', flexDirection: 'row' }}>
+            <Button
+              buttonStyle={styles.leftBottomBtn}
+              containerStyle={{
+                width: dp2px(100),
+                marginLeft: dp2px(15),
+              }}
+              title="重置"
+              titleStyle={{ color: 'white' }}
+              onPress={() => this.onResetPress()}
+            />
+            <Button
+              buttonStyle={styles.rightBottomBtn}
+              containerStyle={{
+                flex: 1,
+                marginLeft: dp2px(15),
+                marginRight: dp2px(15),
+              }}
+              title="确认"
+              titleStyle={{ color: 'white' }}
+              onPress={() => this.onConfirmPress()}
+            />
+          </View>
+        </View>
+      </Modal>
+    );
+  };
